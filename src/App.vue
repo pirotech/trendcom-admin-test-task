@@ -40,9 +40,9 @@
 
 <script>
 import moment from 'moment';
+import axios from 'axios';
 import RegisterModal from './components/RegisterModal';
 import EditorModal from './components/EditorModal';
-import loadedUsers from './users.json';
 import User from './User';
 
 export default {
@@ -157,14 +157,19 @@ export default {
     }
   },
   mounted() {
-    // check for empty storage
     let storedUsers = localStorage.getItem('users');
     if (!storedUsers) {
-      localStorage.setItem('users', JSON.stringify(loadedUsers));
+      axios.get('/static/users.json').then(response => {
+        // check for empty storage
+        const loadedUsers = response.data;
+        localStorage.setItem('users', JSON.stringify(loadedUsers));
+        this.users = loadedUsers;
+      }).catch(error => {
+        console.log(error);
+      });
+    } else {
+      this.users = JSON.parse(storedUsers);
     }
-    // set up from storage
-    storedUsers = localStorage.getItem('users');
-    this.users = JSON.parse(storedUsers);
   }
 };
 </script>
