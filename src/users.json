@@ -1,47 +1,62 @@
 [
   {
-    "ID": 0,
-    "Клиент": "test@test.test",
-    "Статус": "Активен",
-    "Тип": "Клиент",
-    "Последнее посещение": "06.02.2019",
-    "Абонентская плата": 0,
-    "Баланс": 0
+    "id": 0,
+    "email": "test@test.test",
+    "status": "active",
+    "type": "Клиент",
+    "lastVisit": "2019-02-06",
+    "payment": 0,
+    "balance": 0,
+    "password": "12345",
+    "phone": "9998884455",
+    "institution": "coffee house"
   },
   {
-    "ID": 1,
-    "Клиент": "bot@test.test",
-    "Статус": "Заблокирован",
-    "Тип": "Клиент",
-    "Последнее посещение": "06.02.2019",
-    "Абонентская плата": 0,
-    "Баланс": 0
+    "id": 1,
+    "email": "bot@test.test",
+    "status": "blocked",
+    "type": "Клиент",
+    "lastVisit": "2019-02-06",
+    "payment": 0,
+    "balance": 0,
+    "password": "12345",
+    "phone": "9992221122",
+    "institution": "coffee house"
   },
   {
-    "ID": 2,
-    "Клиент": "finn@test.test",
-    "Статус": "Активен",
-    "Тип": "Клиент",
-    "Последнее посещение": "06.02.2019",
-    "Абонентская плата": 0,
-    "Баланс": 0
+    "id": 2,
+    "email": "finn@test.test",
+    "status": "active",
+    "type": "Клиент",
+    "lastVisit": "2019-02-06",
+    "payment": 0,
+    "balance": 0,
+    "password": "12345",
+    "phone": "9998887766",
+    "institution": "coffee house"
   },
   {
-    "ID": 3,
-    "Клиент": "jake@test.test",
-    "Статус": "Активен",
-    "Тип": "Клиент",
-    "Последнее посещение": "06.02.2019",
-    "Абонентская плата": 10,
-    "Баланс": 0
+    "id": 3,
+    "email": "jake@test.test",
+    "status": "active",
+    "type": "Клиент",
+    "lastVisit": "2019-02-06",
+    "payment": 10,
+    "balance": 0,
+    "password": "12345",
+    "phone": "9990007733",
+    "institution": "coffee house"
   },
   {
-    "ID": 4,
-    "Клиент": "bublegum@test.test",
-    "Статус": "Активен",
-    "Тип": "Клиент",
-    "Последнее посещение": "06.02.2019",
-    "Абонентская плата": 20,
-    "Баланс": 10
+    "id": 4,
+    "email": "bublegum@test.test",
+    "status": "active",
+    "type": "Клиент",
+    "lastVisit": "2019-02-06",
+    "payment": 20,
+    "balance": 10,
+    "password": "12345",
+    "phone": "9993337755",
+    "institution": "coffee house"
   }
 ]

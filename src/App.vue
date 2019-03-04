@@ -21,7 +21,7 @@
       >{{ item.label }}</b-button>
     </div>
 
-    <b-table class="app-users" striped hover :items="filteredUsers" :fields="fields" />
+    <b-table class="app-users" striped hover :items="tabledUsers" :fields="fields" />
     <div class="app-statistics">
       <p>Всего клиентов: {{ users ? users.length : '-' }}</p>
       <p>Заблокированных пользователей: {{ users ? filterUsers('blocked').length : '-' }}</p>
@@ -85,8 +85,10 @@
 </template>
 
 <script>
-import loadedUsers from './users.json'
-import MaskedInput from 'vue-masked-input'
+import MaskedInput from 'vue-masked-input';
+import moment from 'moment';
+import loadedUsers from './users.json';
+import User from './User';
 
 export default {
   name: 'App',
@@ -106,7 +108,13 @@ export default {
         mode: 'all'
       },
       fields: [
-        { key: 'Последнее посещение', sortable: true }
+        { key: 'id', label: 'ID', sortable: false },
+        { key: 'email', label: 'Клиент', sortable: false },
+        { key: 'status', label: 'Статус', sortable: false },
+        { key: 'type', label: 'Тип', sortable: false },
+        { key: 'lastVisit', label: 'Последнее посещение', sortable: true },
+        { key: 'payment', label: 'Абонентская плата', sortable: false },
+        { key: 'balance', label: 'Баланс', sortable: false }
       ],
       registerModal: {
         allInstitutions: [
@@ -132,33 +140,61 @@ export default {
           case 'all':
             return true;
           case 'blocked':
-            return item['Статус'] === 'Заблокирован';
+            return item.status === 'blocked';
           case 'active':
-            return item['Статус'] === 'Активен';
+            return item.status === 'active';
           default:
             return true;
         }
       });
     },
     cancelRegisterModal() {
+      // clear form
+      this.registerModal.email = '';
+      this.registerModal.password = '';
+      this.registerModal.phone = '';
+      this.registerModal.institution = 'caffee house';
+      // close modal
       this.$refs.registerModal.hide();
     },
     saveRegisterModal() {
-      // collect user
+      // collect and save user
       const { email, password, phone, institution } = this.registerModal;
-      // save user
-      // close modal
-      this.users = [ ...users, {}];
-
-      this.$refs.registerModal.hide();
+      const isValid = email !== '' && password !== '';
+      if (isValid) {
+        this.users = [ ...this.users, new User({
+          email,
+          password,
+          phone,
+          institution
+        })];
+        this.filteredUsers = this.filterUsers();
+        localStorage.setItem('users', JSON.stringify(this.users));
+        // cancel modal
+        this.cancelRegisterModal();
+      }
     },
   },
+  computed: {
+    tabledUsers() {
+      return this.filteredUsers.map(item => ({
+        ...item,
+        lastVisit: item.lastVisit !== ''
+          ? moment(new Date(item.lastVisit)).format('DD.MM.YYYY') : '-',
+        status: item.status === 'active'
+          ? 'Активен' : item.status === 'blocked'
+            ? 'Заблокирован' : '-',
+        type: item.type || '-'
+      }));
+    }
+  },
   mounted () {
+    // check for empty storage
     let storedUsers = localStorage.getItem('users');
     if (!storedUsers) {
       localStorage.setItem('users', JSON.stringify(loadedUsers));
     }
-
+    // set up from storage
     storedUsers = localStorage.getItem('users');
     this.users = JSON.parse(storedUsers);
     this.filteredUsers = this.users;
