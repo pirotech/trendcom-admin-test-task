@@ -41,7 +41,7 @@
             <b-input-group class="margin-top-10" prepend="Логин (email)" size="sm">
               <b-input
                 placeholder="Введите email клиента"
-                :type="'email'"
+                :state="registerModal.emailValid"
                 v-model="registerModal.email"
               />
             </b-input-group>
@@ -49,6 +49,7 @@
               <b-input
                 placeholder="Придумайте пароль"
                 :type="'password'"
+                :state="registerModal.passwordValid"
                 v-model="registerModal.password"
               />
             </b-input-group>
@@ -95,17 +96,13 @@
           <b-row>
             <b-col>
               <b-input-group class="margin-top-10" prepend="Логин (email)" size="sm">
-                <b-input
-                  placeholder="Введите email клиента"
-                  :type="'email'"
-                  v-model="editorModal.email"
-                  disabled
-                />
+                <b-input v-model="editorModal.email" disabled />
               </b-input-group>
               <b-input-group class="margin-top-10" prepend="Пароль" size="sm">
                 <b-input
                   placeholder="Придумайте пароль"
                   :type="'password'"
+                  :state="editorModal.passwordValid"
                   v-model="editorModal.password"
                 />
               </b-input-group>
@@ -146,10 +143,7 @@
                 />
               </b-input-group>
               <b-input-group class="margin-top-10" prepend="Email руководителя" size="sm">
-                <b-input
-                  :type="'email'"
-                  v-model="editorModal.leader.email"
-                />
+                <b-input v-model="editorModal.leader.email" />
               </b-input-group>
             </b-col>
             <b-col></b-col>
@@ -257,7 +251,9 @@ export default {
         email: '',
         password: '',
         phone: '',
-        institution: 'coffee house'
+        institution: 'coffee house',
+        emailValid: true,
+        passwordValid: true
       },
       editorModal: {
         email: '',
@@ -269,7 +265,8 @@ export default {
           fullName: '',
           phone: '',
           email: ''
-        }
+        },
+        passwordValid: true
       }
     }
   },
@@ -302,10 +299,14 @@ export default {
       this.$refs.registerModal.hide();
     },
     saveRegisterModal() {
-      // collect and save user
       const { email, password, phone, institution } = this.registerModal;
-      const isValid = email !== '' && password !== '';
-      if (isValid) {
+      // validation
+      const emailValid = (email !== '');
+      const passwordValid = (password !== '');
+      this.registerModal.emailValid = emailValid;
+      this.registerModal.passwordValid = passwordValid;
+      if (emailValid && passwordValid) {
+        // collect and save user
         this.users = [ ...this.users, new User({
           email,
           password,
@@ -316,7 +317,9 @@ export default {
         this.filteredUsers = this.filterUsers();
         localStorage.setItem('users', JSON.stringify(this.users));
         // cancel modal
-        this.cancelRegisterModal();
+        setTimeout(() => {
+          this.cancelRegisterModal();
+        }, 400);
       }
     },
     openEditor(entity) {
@@ -342,19 +345,21 @@ export default {
       this.$refs.editorModal.hide();
     },
     saveEditorModal() {
-      // collect and save user
       const { id, email, password, phone, institutionName, leader } = this.editorModal;
-      const isValid = email !== '' && password !== '';
-      if (isValid) {
+      // validation
+      const passwordValid = (password !== '');
+      this.editorModal.passwordValid = passwordValid;
+      if (passwordValid) {
+        // collect and save user
         const withoutOld = this.users.filter(item => item.id !== id);
         this.users = [ ...withoutOld, new User({ ...this.editorModal }) ];
         this.filteredUsers = this.filterUsers();
         localStorage.setItem('users', JSON.stringify(this.users));
         // cancel modal
-        this.cancelRegisterModal();
+        setTimeout(() => {
+          this.cancelEditorModal();
+        }, 400);
       }
-      // cancel modal
-      this.cancelEditorModal();
     }
   },
   mounted () {
