@@ -1,0 +1,56 @@
+[
+  {
+    "id": 0,
+    "email": "finn@test.test",
+    "status": "active",
+    "type": "Клиент",
+    "lastVisit": "2019-02-15",
+    "payment": 0,
+    "balance": 0,
+    "password": "12345",
+    "phone": "+7(999)-888-44-55",
+    "institution": "coffee house",
+    "institutionName": "Super coffee house!",
+    "leader": {
+      "fullName": "Noname",
+      "phone": "+7(999)-888-44-55",
+      "email": ""
+    }
+  },
+  {
+    "id": 1,
+    "email": "bot@test.test",
+    "status": "blocked",
+    "type": "Клиент",
+    "lastVisit": "2019-02-06",
+    "payment": 0,
+    "balance": 0,
+    "password": "12345",
+    "phone": "+7(999)-222-11-22",
+    "institution": "coffee house",
+    "institutionName": "Super coffee house!",
+    "leader": {
+      "fullName": "Noname",
+      "phone": "+7(999)-888-44-55",
+      "email": ""
+    }
+  },
+  {
+    "id": 2,
+    "email": "jake@test.test",
+    "status": "active",
+    "type": "Клиент",
+    "lastVisit": "2019-03-06",
+    "payment": 0,
+    "balance": 0,
+    "password": "12345",
+    "phone": "+7(999)-888-77-66",
+    "institution": "library",
+    "institutionName": "Super coffee house!",
+    "leader": {
+      "fullName": "Noname",
+      "phone": "+7(999)-888-44-55",
+      "email": ""
+    }
+  }
+]
