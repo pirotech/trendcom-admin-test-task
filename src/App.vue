@@ -33,62 +33,7 @@
       <p>Заблокированных пользователей: {{ users ? blockedUsers.length : '-' }}</p>
     </div>
 
-    <b-modal id="register" ref="registerModal" size="lg" title="Регистрация нового клиента">
-      <b-container>
-        <h5>Основная информация</h5>
-
-        <b-row>
-          <b-col>
-            <b-input-group class="margin-top-10" prepend="Логин (email)" size="sm">
-              <b-input
-                placeholder="Введите email клиента"
-                :state="registerModal.emailValid"
-                v-model="registerModal.email"
-              />
-            </b-input-group>
-            <b-input-group class="margin-top-10" prepend="Пароль" size="sm">
-              <b-input
-                placeholder="Придумайте пароль"
-                :type="'password'"
-                :state="registerModal.passwordValid"
-                v-model="registerModal.password"
-              />
-            </b-input-group>
-          </b-col>
-          <b-col>
-            <b-input-group class="margin-top-10" prepend="Телефон" size="sm">
-              <masked-input class="form-control"
-                v-model="registerModal.phone"
-                mask="\+7(111)-111-11-11"
-                placeholder=""
-              />
-            </b-input-group>
-            <b-input-group class="margin-top-10" prepend="Тип заведения" size="sm">
-              <b-form-select
-                :options="allInstitutions"
-                required
-                v-model="registerModal.institution"
-              />
-            </b-input-group>
-          </b-col>
-        </b-row>
-      </b-container>
-      <div slot="modal-footer">
-        <b-button
-          class="float-right"
-          size="sm"
-          variant="warning"
-          @click="cancelRegisterModal"
-        >Отмена</b-button>
-        <b-button
-          class="float-right margin-right-10"
-          size="sm"
-          variant="primary"
-          @click="saveRegisterModal"
-        >Сохранить</b-button>
-      </div>
-    </b-modal>
-
+    <RegisterModal :onRegister="onRegister" />
     <b-modal id="editor" ref="editorModal" size="lg" title="Контактная информация">
       <b-container>
         <b-container>
@@ -172,13 +117,15 @@
 <script>
 import MaskedInput from 'vue-masked-input';
 import moment from 'moment';
+import RegisterModal from './components/RegisterModal';
 import loadedUsers from './users.json';
 import User from './User';
 
 export default {
   name: 'App',
   components: {
-    'masked-input': MaskedInput
+    'masked-input': MaskedInput,
+    'RegisterModal': RegisterModal
   },
   data() {
     return {
@@ -238,23 +185,10 @@ export default {
           sortable: false
         }
       ],
-      allInstitutions: [
-        { value: 'coffee house', text: 'Кафе' },
-        { value: 'library', text: 'Библиотека' },
-        { value: 'gum', text: 'Спортзал' }
-      ],
       allStatuses: [
         { value: 'active', text: 'Активен' },
         { value: 'blocked', text: 'Заблокирован' }
       ],
-      registerModal: {
-        email: '',
-        password: '',
-        phone: '',
-        institution: 'coffee house',
-        emailValid: true,
-        passwordValid: true
-      },
       editorModal: {
         email: '',
         password: '',
@@ -280,38 +214,10 @@ export default {
       }
       return '';
     },
-    cancelRegisterModal() {
-      // clear form
-      this.registerModal.email = '';
-      this.registerModal.password = '';
-      this.registerModal.phone = '';
-      this.registerModal.institution = 'caffee house';
-      // close modal
-      this.$refs.registerModal.hide();
-    },
-    saveRegisterModal() {
-      const { email, password, phone, institution } = this.registerModal;
-      // validation
-      const emailValid = (email !== '');
-      const passwordValid = (password !== '');
-      this.registerModal.emailValid = emailValid;
-      this.registerModal.passwordValid = passwordValid;
-      if (emailValid && passwordValid) {
-        // collect and save user
-        this.users = [...this.users, new User({
-          email,
-          password,
-          phone,
-          institution,
-          status: 'active',
-          type: 'Клиент'
-        })];
-        localStorage.setItem('users', JSON.stringify(this.users));
-        // cancel modal
-        setTimeout(() => {
-          this.cancelRegisterModal();
-        }, 400);
-      }
+    onRegister(user) {
+      this.users = [ ...this.users, user ];
+      console.log(this.users);
+      localStorage.setItem('users', JSON.stringify(this.users));
     },
     openEditor(entity) {
       // init form
