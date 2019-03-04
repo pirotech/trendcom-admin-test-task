@@ -34,98 +34,22 @@
     </div>
 
     <RegisterModal :onRegister="onRegister" />
-    <b-modal id="editor" ref="editorModal" size="lg" title="Контактная информация">
-      <b-container>
-        <b-container>
-          <h5>Основная информация</h5>
-
-          <b-row>
-            <b-col>
-              <b-input-group class="margin-top-10" prepend="Логин (email)" size="sm">
-                <b-input v-model="editorModal.email" disabled />
-              </b-input-group>
-              <b-input-group class="margin-top-10" prepend="Пароль" size="sm">
-                <b-input
-                  placeholder="Придумайте пароль"
-                  :type="'password'"
-                  :state="editorModal.passwordValid"
-                  v-model="editorModal.password"
-                />
-              </b-input-group>
-            </b-col>
-            <b-col>
-              <b-input-group class="margin-top-10" prepend="Телефон" size="sm">
-                <masked-input class="form-control"
-                  v-model="editorModal.phone"
-                  mask="\+7(111)-111-11-11"
-                />
-              </b-input-group>
-              <b-input-group class="margin-top-10" prepend="Статус" size="sm">
-                <b-form-select
-                  :options="allStatuses"
-                  required
-                  v-model="editorModal.status"
-                />
-              </b-input-group>
-            </b-col>
-          </b-row>
-        </b-container>
-
-        <b-container class="app-form-block">
-          <h5>Контакты клиента</h5>
-
-          <b-row>
-            <b-col>
-              <b-input-group class="margin-top-10" prepend="Название организации" size="sm">
-                <b-input v-model="editorModal.institutionName" />
-              </b-input-group>
-              <b-input-group class="margin-top-10" prepend="ФИО руководителя" size="sm">
-                <b-input v-model="editorModal.leader.fullName" />
-              </b-input-group>
-              <b-input-group class="margin-top-10" prepend="Телефон руководителя" size="sm">
-                <masked-input class="form-control"
-                  v-model="editorModal.leader.phone"
-                  mask="\+7(111)-111-11-11"
-                />
-              </b-input-group>
-              <b-input-group class="margin-top-10" prepend="Email руководителя" size="sm">
-                <b-input v-model="editorModal.leader.email" />
-              </b-input-group>
-            </b-col>
-            <b-col></b-col>
-          </b-row>
-        </b-container>
-      </b-container>
-      <div slot="modal-footer">
-        <b-button
-          class="float-right"
-          size="sm"
-          variant="warning"
-          @click="cancelEditorModal"
-        >Отмена</b-button>
-        <b-button
-          class="float-right margin-right-10"
-          size="sm"
-          variant="primary"
-          @click="saveEditorModal"
-        >Сохранить</b-button>
-      </div>
-    </b-modal>
+    <EditorModal :user="edited" :onEdit="onEdit" />
   </div>
 </template>
 
 <script>
-import MaskedInput from 'vue-masked-input';
 import moment from 'moment';
 import RegisterModal from './components/RegisterModal';
+import EditorModal from './components/EditorModal';
 import loadedUsers from './users.json';
 import User from './User';
 
 export default {
   name: 'App',
   components: {
-    'masked-input': MaskedInput,
-    'RegisterModal': RegisterModal
+    'RegisterModal': RegisterModal,
+    'EditorModal': EditorModal
   },
   data() {
     return {
@@ -185,23 +109,7 @@ export default {
           sortable: false
         }
       ],
-      allStatuses: [
-        { value: 'active', text: 'Активен' },
-        { value: 'blocked', text: 'Заблокирован' }
-      ],
-      editorModal: {
-        email: '',
-        password: '',
-        phone: '',
-        status: 'active',
-        institutionName: '',
-        leader: {
-          fullName: '',
-          phone: '',
-          email: ''
-        },
-        passwordValid: true
-      }
+      edited: { leader: {} }
     };
   },
   methods: {
@@ -216,46 +124,17 @@ export default {
     },
     onRegister(user) {
       this.users = [ ...this.users, user ];
-      console.log(this.users);
       localStorage.setItem('users', JSON.stringify(this.users));
     },
-    openEditor(entity) {
-      // init form
-      this.editorModal = {
-        ...this.editorModal,
-        ...entity
-      };
-      // show modal
-      this.$refs.editorModal.show();
+    openEditor(user) {
+      this.edited = new User(user);
+      this.$root.$emit('bv::show::modal', 'editor');
     },
-    cancelEditorModal() {
-      // clear form
-      this.editorModal.email = '';
-      this.editorModal.password = '';
-      this.editorModal.phone = '';
-      this.editorModal.status = 'active';
-      this.editorModal.institutionName = '';
-      this.editorModal.leader.fullName = '';
-      this.editorModal.leader.phone = '';
-      this.editorModal.leader.email = '';
-      // close modal
-      this.$refs.editorModal.hide();
-    },
-    saveEditorModal() {
-      const { id, password } = this.editorModal;
-      // validation
-      const passwordValid = (password !== '');
-      this.editorModal.passwordValid = passwordValid;
-      if (passwordValid) {
-        // collect and save user
-        const withoutOld = this.users.filter(item => item.id !== id);
-        this.users = [ ...withoutOld, new User({ ...this.editorModal }) ];
-        localStorage.setItem('users', JSON.stringify(this.users));
-        // cancel modal
-        setTimeout(() => {
-          this.cancelEditorModal();
-        }, 400);
-      }
+    onEdit() {
+      // save user
+      const withoutOld = this.users.filter(item => item.id !== this.edited.id);
+      this.users = [ ...withoutOld, this.edited ];
+      localStorage.setItem('users', JSON.stringify(this.users));
     }
   },
   computed: {

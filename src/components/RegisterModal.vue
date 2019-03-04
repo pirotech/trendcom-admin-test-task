@@ -92,7 +92,6 @@ export default {
       this.$refs.modal.hide();
     },
     save() {
-      console.log('register');
       // validation
       const emailValid = (this.email !== '');
       const passwordValid = (this.password !== '');
