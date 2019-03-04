@@ -3,7 +3,7 @@
     <b-navbar class="app-header" toggleable="lg" type="dark" variant="dark">
       <b-navbar-nav>
         <b-nav-text>admin@yandex.ru</b-nav-text>
-        <b-nav-item v-b-modal.add>Добавить клиента</b-nav-item>
+        <b-nav-item v-b-modal.register>Добавить клиента</b-nav-item>
       </b-navbar-nav>
 
       <b-navbar-nav class="ml-auto">
@@ -21,24 +21,78 @@
       >{{ item.label }}</b-button>
     </div>
 
-    <b-table class="app-users" striped hover :items="filteredUsers" />
+    <b-table class="app-users" striped hover :items="filteredUsers" :fields="fields" />
     <div class="app-statistics">
       <p>Всего клиентов: {{ users ? users.length : '-' }}</p>
       <p>Заблокированных пользователей: {{ users ? filterUsers('blocked').length : '-' }}</p>
     </div>
 
-    <b-modal id="add" title="Регистрация нового клиента">
-      <p class="my-4">Основная информация</p>
+    <b-modal id="register" ref="registerModal" size="lg" title="Регистрация нового клиента">
+      <b-container>
+        <h5>Основная информация</h5>
+
+        <b-row>
+          <b-col>
+            <b-input-group class="margin-top-10" prepend="Логин (email)">
+              <b-input
+                placeholder="Введите email клиента"
+                :type="'email'"
+                v-model="registerModal.email"
+              />
+            </b-input-group>
+            <b-input-group class="margin-top-10" prepend="Пароль">
+              <b-input
+                placeholder="Придумайте пароль"
+                :type="'password'"
+                v-model="registerModal.password"
+              />
+            </b-input-group>
+          </b-col>
+          <b-col>
+            <b-input-group class="margin-top-10" prepend="Телефон">
+              <masked-input class="form-control"
+                v-model="registerModal.phone"
+                mask="\+7(111)-111-11-11"
+                placeholder=""
+              />
+            </b-input-group>
+            <b-input-group class="margin-top-10" prepend="Тип заведения">
+              <b-form-select
+                :options="registerModal.allInstitutions"
+                required
+                v-model="registerModal.institution"
+              />
+            </b-input-group>
+          </b-col>
+        </b-row>
+      </b-container>
+      <div slot="modal-footer">
+        <b-button
+          class="float-right"
+          size="sm"
+          variant="warning"
+          @click="cancelRegisterModal"
+        >Отмена</b-button>
+        <b-button
+          class="float-right margin-right-10"
+          size="sm"
+          variant="primary"
+          @click="saveRegisterModal"
+        >Сохранить</b-button>
+      </div>
     </b-modal>
   </div>
 </template>
 
 <script>
 import loadedUsers from './users.json'
+import MaskedInput from 'vue-masked-input'
 
 export default {
   name: 'App',
-  components: {},
+  components: {
+    'masked-input': MaskedInput
+  },
   data () {
     return {
       users: [],
@@ -50,6 +104,20 @@ export default {
           { label: 'Показать только активных', value: 'active' }
         ],
         mode: 'all'
+      },
+      fields: [
+        { key: 'Последнее посещение', sortable: true }
+      ],
+      registerModal: {
+        allInstitutions: [
+          { value: 'coffee house', text: 'Кафе' },
+          { value: 'library', text: 'Библиотека' },
+          { value: 'gum', text: 'Спортзал' }
+        ],
+        email: '',
+        password: '',
+        phone: '',
+        institution: 'coffee house'
       }
     }
   },
@@ -71,7 +139,19 @@ export default {
             return true;
         }
       });
-    }
+    },
+    cancelRegisterModal() {
+      this.$refs.registerModal.hide();
+    },
+    saveRegisterModal() {
+      // collect user
+      const { email, password, phone, institution } = this.registerModal;
+      // save user
+      // close modal
+      this.users = [ ...users, {}];
+
+      this.$refs.registerModal.hide();
+    },
   },
   mounted () {
     let storedUsers = localStorage.getItem('users');
@@ -97,5 +177,11 @@ export default {
   &-statistics {
     padding: 20px;
   }
+}
+.margin-right-10 {
+  margin-right: 10px;
+}
+.margin-top-10 {
+  margin-top: 10px;
 }
 </style>
