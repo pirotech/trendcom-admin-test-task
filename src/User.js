@@ -1,6 +1,12 @@
 class User {
 
   constructor(entity) {
+    const leaderPrototype = {
+      fullName: '',
+      phone: '',
+      email: ''
+    };
+
     this.id = entity.id === undefined ? Math.round(Math.random() * 100) : entity.id;
     this.email = entity.email === undefined ? '' : entity.email;
     this.status = entity.status === undefined ? '' : entity.status;
@@ -11,6 +17,11 @@ class User {
     this.password = entity.password === undefined ? '' : entity.password;
     this.phone = entity.phone === undefined ? '' : entity.phone;
     this.institution = entity.institution === undefined ? '' : entity.institution
+    this.institutionName = entity.institutionName === undefined ? '' : entity.institutionName,
+    this.leader = entity.leader === undefined ? leaderPrototype : {
+      ...leaderPrototype,
+      ...entity.leader
+    }
   }
 
 }

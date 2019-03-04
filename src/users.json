@@ -1,15 +1,21 @@
 [
   {
     "id": 0,
-    "email": "test@test.test",
+    "email": "finn@test.test",
     "status": "active",
     "type": "Клиент",
-    "lastVisit": "2019-02-06",
+    "lastVisit": "2019-02-15",
     "payment": 0,
     "balance": 0,
     "password": "12345",
-    "phone": "9998884455",
-    "institution": "coffee house"
+    "phone": "+7(999)-888-44-55",
+    "institution": "coffee house",
+    "institutionName": "Super coffee house!",
+    "leader": {
+      "fullName": "Noname",
+      "phone": "+7(999)-888-44-55",
+      "email": ""
+    }
   },
   {
     "id": 1,
@@ -20,43 +26,31 @@
     "payment": 0,
     "balance": 0,
     "password": "12345",
-    "phone": "9992221122",
-    "institution": "coffee house"
+    "phone": "+7(999)-222-11-22",
+    "institution": "coffee house",
+    "institutionName": "Super coffee house!",
+    "leader": {
+      "fullName": "Noname",
+      "phone": "+7(999)-888-44-55",
+      "email": ""
+    }
   },
   {
     "id": 2,
-    "email": "finn@test.test",
-    "status": "active",
-    "type": "Клиент",
-    "lastVisit": "2019-02-06",
-    "payment": 0,
-    "balance": 0,
-    "password": "12345",
-    "phone": "9998887766",
-    "institution": "coffee house"
-  },
-  {
-    "id": 3,
     "email": "jake@test.test",
     "status": "active",
     "type": "Клиент",
-    "lastVisit": "2019-02-06",
-    "payment": 10,
+    "lastVisit": "2019-03-06",
+    "payment": 0,
     "balance": 0,
     "password": "12345",
-    "phone": "9990007733",
-    "institution": "coffee house"
-  },
-  {
-    "id": 4,
-    "email": "bublegum@test.test",
-    "status": "active",
-    "type": "Клиент",
-    "lastVisit": "2019-02-06",
-    "payment": 20,
-    "balance": 10,
-    "password": "12345",
-    "phone": "9993337755",
-    "institution": "coffee house"
+    "phone": "+7(999)-888-77-66",
+    "institution": "library",
+    "institutionName": "Super coffee house!",
+    "leader": {
+      "fullName": "Noname",
+      "phone": "+7(999)-888-44-55",
+      "email": ""
+    }
   }
 ]

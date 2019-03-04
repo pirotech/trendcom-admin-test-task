@@ -21,7 +21,12 @@
       >{{ item.label }}</b-button>
     </div>
 
-    <b-table class="app-users" striped hover :items="tabledUsers" :fields="fields" />
+    <b-table class="app-users"
+      hover
+      :items="filteredUsers"
+      :fields="fields"
+      @row-clicked="openEditor"
+    />
     <div class="app-statistics">
       <p>Всего клиентов: {{ users ? users.length : '-' }}</p>
       <p>Заблокированных пользователей: {{ users ? filterUsers('blocked').length : '-' }}</p>
@@ -33,14 +38,14 @@
 
         <b-row>
           <b-col>
-            <b-input-group class="margin-top-10" prepend="Логин (email)">
+            <b-input-group class="margin-top-10" prepend="Логин (email)" size="sm">
               <b-input
                 placeholder="Введите email клиента"
                 :type="'email'"
                 v-model="registerModal.email"
               />
             </b-input-group>
-            <b-input-group class="margin-top-10" prepend="Пароль">
+            <b-input-group class="margin-top-10" prepend="Пароль" size="sm">
               <b-input
                 placeholder="Придумайте пароль"
                 :type="'password'"
@@ -49,16 +54,16 @@
             </b-input-group>
           </b-col>
           <b-col>
-            <b-input-group class="margin-top-10" prepend="Телефон">
+            <b-input-group class="margin-top-10" prepend="Телефон" size="sm">
               <masked-input class="form-control"
                 v-model="registerModal.phone"
                 mask="\+7(111)-111-11-11"
                 placeholder=""
               />
             </b-input-group>
-            <b-input-group class="margin-top-10" prepend="Тип заведения">
+            <b-input-group class="margin-top-10" prepend="Тип заведения" size="sm">
               <b-form-select
-                :options="registerModal.allInstitutions"
+                :options="allInstitutions"
                 required
                 v-model="registerModal.institution"
               />
@@ -78,6 +83,91 @@
           size="sm"
           variant="primary"
           @click="saveRegisterModal"
+        >Сохранить</b-button>
+      </div>
+    </b-modal>
+
+    <b-modal id="editor" ref="editorModal" size="lg" title="Контактная информация">
+      <b-container>
+        <b-container>
+          <h5>Основная информация</h5>
+
+          <b-row>
+            <b-col>
+              <b-input-group class="margin-top-10" prepend="Логин (email)" size="sm">
+                <b-input
+                  placeholder="Введите email клиента"
+                  :type="'email'"
+                  v-model="editorModal.email"
+                  disabled
+                />
+              </b-input-group>
+              <b-input-group class="margin-top-10" prepend="Пароль" size="sm">
+                <b-input
+                  placeholder="Придумайте пароль"
+                  :type="'password'"
+                  v-model="editorModal.password"
+                />
+              </b-input-group>
+            </b-col>
+            <b-col>
+              <b-input-group class="margin-top-10" prepend="Телефон" size="sm">
+                <masked-input class="form-control"
+                  v-model="editorModal.phone"
+                  mask="\+7(111)-111-11-11"
+                />
+              </b-input-group>
+              <b-input-group class="margin-top-10" prepend="Статус" size="sm">
+                <b-form-select
+                  :options="allStatuses"
+                  required
+                  v-model="editorModal.status"
+                />
+              </b-input-group>
+            </b-col>
+          </b-row>
+        </b-container>
+
+        <b-container class="app-form-block">
+          <h5>Контакты клиента</h5>
+
+          <b-row>
+            <b-col>
+              <b-input-group class="margin-top-10" prepend="Название организации" size="sm">
+                <b-input v-model="editorModal.institutionName" />
+              </b-input-group>
+              <b-input-group class="margin-top-10" prepend="ФИО руководителя" size="sm">
+                <b-input v-model="editorModal.leader.fullName" />
+              </b-input-group>
+              <b-input-group class="margin-top-10" prepend="Телефон руководителя" size="sm">
+                <masked-input class="form-control"
+                  v-model="editorModal.leader.phone"
+                  mask="\+7(111)-111-11-11"
+                />
+              </b-input-group>
+              <b-input-group class="margin-top-10" prepend="Email руководителя" size="sm">
+                <b-input
+                  :type="'email'"
+                  v-model="editorModal.leader.email"
+                />
+              </b-input-group>
+            </b-col>
+            <b-col></b-col>
+          </b-row>
+        </b-container>
+      </b-container>
+      <div slot="modal-footer">
+        <b-button
+          class="float-right"
+          size="sm"
+          variant="warning"
+          @click="cancelEditorModal"
+        >Отмена</b-button>
+        <b-button
+          class="float-right margin-right-10"
+          size="sm"
+          variant="primary"
+          @click="saveEditorModal"
         >Сохранить</b-button>
       </div>
     </b-modal>
@@ -108,24 +198,78 @@ export default {
         mode: 'all'
       },
       fields: [
-        { key: 'id', label: 'ID', sortable: false },
-        { key: 'email', label: 'Клиент', sortable: false },
-        { key: 'status', label: 'Статус', sortable: false },
-        { key: 'type', label: 'Тип', sortable: false },
-        { key: 'lastVisit', label: 'Последнее посещение', sortable: true },
-        { key: 'payment', label: 'Абонентская плата', sortable: false },
-        { key: 'balance', label: 'Баланс', sortable: false }
+        {
+          key: 'id',
+          label: 'ID',
+          sortable: false
+        },
+        {
+          key: 'email',
+          label: 'Клиент',
+          sortable: false
+        },
+        {
+          key: 'status',
+          label: 'Статус',
+          sortable: false,
+          formatter: value => {
+            return value === 'active'
+              ? 'Активен' : value === 'blocked'
+                ? 'Заблокирован' : '-';
+          }
+        },
+        {
+          key: 'type',
+          label: 'Тип',
+          sortable: false,
+          formatter: value => value || '-'
+        },
+        {
+          key: 'lastVisit',
+          label: 'Последнее посещение',
+          sortable: true,
+          formatter: value => {
+            return value !== ''
+              ? moment(new Date(value)).format('DD.MM.YYYY') : '-';
+          }
+        },
+        {
+          key: 'payment',
+          label: 'Абонентская плата',
+          sortable: false
+        },
+        {
+          key: 'balance',
+          label: 'Баланс',
+          sortable: false
+        }
+      ],
+      allInstitutions: [
+        { value: 'coffee house', text: 'Кафе' },
+        { value: 'library', text: 'Библиотека' },
+        { value: 'gum', text: 'Спортзал' }
+      ],
+      allStatuses: [
+        { value: 'active', text: 'Активен' },
+        { value: 'blocked', text: 'Заблокирован' }
       ],
       registerModal: {
-        allInstitutions: [
-          { value: 'coffee house', text: 'Кафе' },
-          { value: 'library', text: 'Библиотека' },
-          { value: 'gum', text: 'Спортзал' }
-        ],
         email: '',
         password: '',
         phone: '',
         institution: 'coffee house'
+      },
+      editorModal: {
+        email: '',
+        password: '',
+        phone: '',
+        status: 'active',
+        institutionName: '',
+        leader: {
+          fullName: '',
+          phone: '',
+          email: ''
+        }
       }
     }
   },
@@ -166,7 +310,8 @@ export default {
           email,
           password,
           phone,
-          institution
+          institution,
+          status: 'active'
         })];
         this.filteredUsers = this.filterUsers();
         localStorage.setItem('users', JSON.stringify(this.users));
@@ -174,18 +319,42 @@ export default {
         this.cancelRegisterModal();
       }
     },
-  },
-  computed: {
-    tabledUsers() {
-      return this.filteredUsers.map(item => ({
-        ...item,
-        lastVisit: item.lastVisit !== ''
-          ? moment(new Date(item.lastVisit)).format('DD.MM.YYYY') : '-',
-        status: item.status === 'active'
-          ? 'Активен' : item.status === 'blocked'
-            ? 'Заблокирован' : '-',
-        type: item.type || '-'
-      }));
+    openEditor(entity) {
+      // init form
+      this.editorModal = {
+        ...this.editorModal,
+        ...entity
+      };
+      // show modal
+      this.$refs.editorModal.show();
+    },
+    cancelEditorModal() {
+      // clear form
+      this.editorModal.email = '';
+      this.editorModal.password = '';
+      this.editorModal.phone = '';
+      this.editorModal.status = 'active';
+      this.editorModal.institutionName = '';
+      this.editorModal.leader.fullName = '';
+      this.editorModal.leader.phone = '';
+      this.editorModal.leader.email = '';
+      // close modal
+      this.$refs.editorModal.hide();
+    },
+    saveEditorModal() {
+      // collect and save user
+      const { id, email, password, phone, institutionName, leader } = this.editorModal;
+      const isValid = email !== '' && password !== '';
+      if (isValid) {
+        const withoutOld = this.users.filter(item => item.id !== id);
+        this.users = [ ...withoutOld, new User({ ...this.editorModal }) ];
+        this.filteredUsers = this.filterUsers();
+        localStorage.setItem('users', JSON.stringify(this.users));
+        // cancel modal
+        this.cancelRegisterModal();
+      }
+      // cancel modal
+      this.cancelEditorModal();
     }
   },
   mounted () {
@@ -212,6 +381,9 @@ export default {
   }
   &-statistics {
     padding: 20px;
+  }
+  &-form-block {
+    margin-top: 20px;
   }
 }
 .margin-right-10 {
