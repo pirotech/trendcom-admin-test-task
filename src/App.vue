@@ -30,7 +30,7 @@
     />
     <div class="app-statistics">
       <p>Всего клиентов: {{ users ? users.length : '-' }}</p>
-      <p>Заблокированных пользователей: {{ users ? filterUsers('blocked').length : '-' }}</p>
+      <p>Заблокированных пользователей: {{ users ? blockedUsers.length : '-' }}</p>
     </div>
 
     <b-modal id="register" ref="registerModal" size="lg" title="Регистрация нового клиента">
@@ -180,10 +180,9 @@ export default {
   components: {
     'masked-input': MaskedInput
   },
-  data () {
+  data() {
     return {
       users: [],
-      filteredUsers: [],
       filters: {
         modes: [
           { label: 'Показать всех', value: 'all' },
@@ -269,26 +268,11 @@ export default {
         },
         passwordValid: true
       }
-    }
+    };
   },
   methods: {
     filterChanged(value) {
       this.filters.mode = value;
-      this.filteredUsers = this.filterUsers(value);
-    },
-    filterUsers(value) {
-      return this.users.filter(item => {
-        switch (value) {
-          case 'all':
-            return true;
-          case 'blocked':
-            return item.status === 'blocked';
-          case 'active':
-            return item.status === 'active';
-          default:
-            return true;
-        }
-      });
     },
     rowClass(item) {
       if (item.status === 'blocked') {
@@ -314,7 +298,7 @@ export default {
       this.registerModal.passwordValid = passwordValid;
       if (emailValid && passwordValid) {
         // collect and save user
-        this.users = [ ...this.users, new User({
+        this.users = [...this.users, new User({
           email,
           password,
           phone,
@@ -322,7 +306,6 @@ export default {
           status: 'active',
           type: 'Клиент'
         })];
-        this.filteredUsers = this.filterUsers();
         localStorage.setItem('users', JSON.stringify(this.users));
         // cancel modal
         setTimeout(() => {
@@ -353,7 +336,7 @@ export default {
       this.$refs.editorModal.hide();
     },
     saveEditorModal() {
-      const { id, email, password, phone, institutionName, leader } = this.editorModal;
+      const { id, password } = this.editorModal;
       // validation
       const passwordValid = (password !== '');
       this.editorModal.passwordValid = passwordValid;
@@ -361,7 +344,6 @@ export default {
         // collect and save user
         const withoutOld = this.users.filter(item => item.id !== id);
         this.users = [ ...withoutOld, new User({ ...this.editorModal }) ];
-        this.filteredUsers = this.filterUsers();
         localStorage.setItem('users', JSON.stringify(this.users));
         // cancel modal
         setTimeout(() => {
@@ -370,7 +352,26 @@ export default {
       }
     }
   },
-  mounted () {
+  computed: {
+    filteredUsers() {
+      return this.users.filter(item => {
+        switch (this.filters.mode) {
+          case 'all':
+            return true;
+          case 'blocked':
+            return item.status === 'blocked';
+          case 'active':
+            return item.status === 'active';
+          default:
+            return true;
+        }
+      });
+    },
+    blockedUsers() {
+      return this.users.filter(item => item.status === 'blocked');
+    }
+  },
+  mounted() {
     // check for empty storage
     let storedUsers = localStorage.getItem('users');
     if (!storedUsers) {
@@ -379,9 +380,8 @@ export default {
     // set up from storage
     storedUsers = localStorage.getItem('users');
     this.users = JSON.parse(storedUsers);
-    this.filteredUsers = this.users;
   }
-}
+};
 </script>
 
 <style lang="scss">

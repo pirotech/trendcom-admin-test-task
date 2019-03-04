@@ -22,7 +22,9 @@ module.exports = {
   // add your custom rules here
   rules: {
     'no-tabs': [1],
-    'indent': [1, 'tab'],
+    // 'indent': [1, 'tab'],
+    'semi': ['warn', 'always'],
+    'space-before-function-paren': ['error', 'never'],
     // allow async-await
     'generator-star-spacing': 'off',
     // allow debugger during development
