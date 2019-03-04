@@ -319,7 +319,8 @@ export default {
           password,
           phone,
           institution,
-          status: 'active'
+          status: 'active',
+          type: 'Клиент'
         })];
         this.filteredUsers = this.filterUsers();
         localStorage.setItem('users', JSON.stringify(this.users));
