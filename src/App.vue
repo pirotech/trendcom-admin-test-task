@@ -25,6 +25,7 @@
       hover
       :items="filteredUsers"
       :fields="fields"
+      :tbody-tr-class="rowClass"
       @row-clicked="openEditor"
     />
     <div class="app-statistics">
@@ -288,6 +289,12 @@ export default {
             return true;
         }
       });
+    },
+    rowClass(item) {
+      if (item.status === 'blocked') {
+        return 'table-danger';
+      }
+      return '';
     },
     cancelRegisterModal() {
       // clear form
